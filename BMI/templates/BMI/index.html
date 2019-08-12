@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>免费在线 BMI 计算器</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" >
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script src="https://kit.fontawesome.com/00f1b78930.js"></script>
+</head>
+<body>
+<nav class="bg-dark "  style="padding: 10px 20% 1px 20%;">
+    <ul style="display: flex;list-style: none;">
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;"  href="/bmi/index/">bmi测试</a></li>
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;" href="/the_weather/index/">天气预报</a></li>
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;" href="/encode/index/">解码(base64)</a></li>
+    </ul>
+</nav>
+
+<div style="background-color: deepskyblue;height: 180px; padding-left: 300px; padding-top: 30px;display: flex;">
+    <img src="https://image.onlinebmicalculator.com/bmi-logo.png" width=200 height=135 border=0>
+    <div class="a1" style="width: 600px;">
+        <h3>免费在线 BMI 计算器</h3>
+        <p>身体质量指数 (Body Mass Index, 简称BMI), 亦称克托莱指数, 是目前国际上常用的衡量人体胖瘦程度以及是否健康的一个标准。BMI 值超标，意味着你必须减肥了。</p>
+    </div>
+</div>
+<hr class="divider">
+<div style="display: flex;">
+    <form action="/bmi/index/" method="post" style="margin-left: 250px;">
+    {% csrf_token %}
+        <h4>免费计算你的身体质量指数 (BMI)</h4>
+        <div class="hidden" style="background-color: orange;">{% if bmi <= 18.4 %}
+            <p style="padding: 10px;">您的BMI值：为{{ bmi }},身体状态：偏瘦</p>
+            {% elif 18.4 < bmi and bmi <= 23.9 %}
+            <p style="padding: 10px;">您的BMI值为：{{ bmi }},身体状态：正常</p>
+            {% elif 23.9 < bmi and bmi <= 27.9 %}
+            <p style="padding: 10px;">您的BMI值为：{{ bmi }},身体状态：过重</p>
+            {% elif 28.0 < bmi %}
+            <p style="padding: 10px;">您的BMI值为：{{ bmi }},身体状态：肥胖</p>
+        {% endif %}</div>
+        <table>
+            <tr>
+                <td>度量单位:</td>
+                <td>
+                    <input type="radio" name="1" value="公制">公制
+                    <input type="radio" name="1" value="英制">英制
+                </td>
+            </tr>
+            <tr>
+                <td>我的身高:</td>
+                <td>
+                    <input type="text" name="height" value="{{ height }}">单位:厘米cm
+                </td>
+            </tr>
+            <tr>
+                <td>我的体重:</td>
+                <td>
+                    <input type="text" name="weight" value="{{ weight }}">单位:千克kg
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 150px;">BMI标准:</td>
+                <td>
+                    <select name="standard" style="width: 200px;">
+                        <option>国际标准</option>
+                        <option>中国标准</option>
+                        <option>日本标准</option>
+                        <option>新加坡标准</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="checkbox" value="">自动保存BMI历史记录
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="计算BMI" style="width: 200px;">
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <div style="margin-left: 100px;">
+        <div><h5>BMI 中国标准</h5></div>
+        <table>
+            <tr>
+                <th style="width: 100px;padding: 0 20px;">分类</th>
+                <th style="width: 200px;">BMI 范围</th>
+            </tr>
+            <tr>
+                <td bgcolor="#CCCCCC" style="padding: 0 20px;">偏瘦</td>
+                <td bgcolor="#CCCCCC">&lt;= 18.4</td>
+            </tr>
+            <tr>
+                <td bgcolor="#66cc00" style="padding: 0 20px;">正常</td>
+                <td bgcolor="#66cc00">18.5 ~ 23.9</td>
+            </tr>
+            <tr>
+                <td bgcolor="#ffff00" style="padding: 0 20px;">过重</td>
+                <td bgcolor="#ffff00">24.0 ~ 27.9</td>
+            </tr>
+            <tr>
+                <td bgcolor="#ff9900" style="padding: 0 20px;">肥胖</td>
+                <td bgcolor="#ff9900">&gt;= 28.0</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div style="margin-top:50px;">
+    <div style="margin: 0 250px;">
+        <strong><span style="padding-left: 20px;">我的 BMI 历史记录</span></strong>
+    </div>
+    <table border=1 style="margin: 0 250px;">
+        <tr>
+            <td style="padding: 5px 10px;">#</td>
+            <td style="padding: 5px 60px;">日期</td>
+            <td style="padding: 5px 60px;">身高</td>
+            <td style="padding: 5px 60px;">体重</td>
+            <td style="padding: 5px 60px;">BMI</td>
+            <td style="padding: 5px 60px;">操作</td>
+        </tr>
+        {% for i in person_list %}
+        <tr>
+            <td>{{ i.id }}</td>
+            <td>{{ i.time }}</td>
+            <td>{{ i.personal_height }}</td>
+            <td>{{ i.personal_weight }}</td>
+            <td>{{ i.personal_bmi }}</td>
+            <td><a href="/bmi/delete/?id={{ i.id }}">删除</a></td>
+        </tr>
+        {% endfor %}
+        {% if request.method == 'GET' %}
+        <tr>
+            <td colspan="6" style="padding: 20px 40px;">
+                <p>当前没有任何 BMI 记录。请输入你的身高和体重，并选中“自动保存 BMI 历史记录”，记算你的 BMI 指数。</p>
+            </td>
+        </tr>
+        {% endif %}
+    </table>
+</div>
+<hr class="divider">
+</body>
+</html>

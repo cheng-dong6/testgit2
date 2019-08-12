@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>天气预报</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" >
+    <link rel="stylesheet" href="iconfont.css">
+{#    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>#}
+{#    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>#}
+{#    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>#}
+    <script src="https://kit.fontawesome.com/00f1b78930.js"></script>
+    <style>
+        .table:hover{
+            background-color: rgba(225,225,225,0.3);
+        }
+        .iconfont {
+              font-family: "iconfont" !important;
+              font-size: 50px;
+              font-style: normal;
+              color: antiquewhite;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body>
+<nav class="bg-dark "  style="padding: 10px 20% 1px 20%;">
+    <ul style="display: flex;list-style: none;">
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;"  href="/bmi/index/">bmi测试</a></li>
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;" href="/the_weather/index/">天气预报</a></li>
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;" href="/encode/index/">解码(base64)</a></li>
+    </ul>
+</nav>
+<div style="background-image: -moz-linear-gradient(rgb(12,99,255), rgb(193,242,254)); height: 570px;opacity: 1;margin: 0 auto;">
+    <div style="height: 50%;">
+        <table style="width: 100%;height: 100%;">
+            <tr style="height: 30px;">
+                <td colspan="16">
+                    <span style="color:deepskyblue;">{{ time }}</span>
+                    <form method="post" action="/the_weather/index/" style="float: right;">
+                        {% csrf_token %}
+                        <input style="background-color: cornflowerblue; width: 150px; height: 20px;font-size: 12px;" type="text" name="city" value="请输入城市名">
+                        <input style="background-color: blue; width: 50px; height: 25px; font-size: 12px;" type="submit" value="搜索">
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td style="width: 100px;border-right: 1px solid rgba(255,255,255,0.5) ;padding:20px 10px; font-size: 12px;" class="table" valign="top">
+                    <span style="color: white">昨天:{{ yesterday_dict.date }}<br></span>
+                    {% if yesterday_dict.type == '大雨' %}
+                        <span class="iconfont">&#xe62c;</span>
+                    {% elif yesterday_dict.type == '多云' %}
+                        <span class="iconfont">&#xe62d;</span>
+                    {% elif yesterday_dict.type == '小雨' %}
+                        <span class="iconfont">&#xe62e;</span>
+                    {% elif yesterday_dict.type == '中雨' %}
+                        <span class="iconfont">&#xe62f;</span>
+                    {% elif yesterday_dict.type == '阴天' %}
+                        <span class="iconfont">&#xe630;</span>
+                    {% elif yesterday_dict.type == '晴天' %}
+                        <span class="iconfont">&#xe631;</span>
+                    {% endif %}
+                    <br><br>
+                    <span style="color: white">{{ yesterday_dict.high }}<br>
+                    {{ yesterday_dict.low }}<br>
+                        {{ yesterday_dict.fx }}{{ yesterday_dict.fl }}<br><br></span>
+                </td>
+                {% for day in forecast_list %}
+                <td style="border-right: 1px solid rgba(255,255,255,0.5) ;padding:20px 10px; font-size: 12px;width: 100px;" class="table" valign="top">
+                    <span style="color:white;">{{ day.date }}日<br></span>
+                    {% if day.type == '大雨' %}
+                        <span class="iconfont">&#xe62c;</span>
+                    {% elif day.type == '多云' %}
+                        <span class="iconfont">&#xe62d;</span>
+                    {% elif day.type == '小雨' %}
+                        <span class="iconfont">&#xe62e;</span>
+                    {% elif day.type == '中雨' %}
+                        <span class="iconfont">&#xe62f;</span>
+                    {% elif day.type == '阴天' %}
+                        <span class="iconfont">&#xe630;</span>
+                    {% elif day.type == '晴天' %}
+                        <span class="iconfont">&#xe631;</span>
+                    {% endif %}
+                    <br><br>
+                    <span style="color: white">{{ day.high }}<br>
+                    {{ day.low }}<br>
+                        {{ day.fx }}{{ day.fl }}<br><br></span>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr style="height: 10px;">
+            </tr>
+        </table>
+    </div>
+    <div id="mainLine" style="height: 250px;">
+
+    </div>
+</div>
+<script src="https://cdn.bootcss.com/echarts/4.2.1-rc1/echarts.min.js"></script>
+<script>
+    var myChart = echarts.init(document.getElementById('mainLine'));
+    option = {
+        title: {
+            text: '未来一周气温变化',
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data:['最高气温','最低气温']
+        },
+        toolbox: {
+            show: true,
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                dataView: {readOnly: false},
+                magicType: {type: ['line', 'bar']},
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: [
+                {% for day in forecast_list %}
+                    '{{ day.date }}',
+                {% endfor %}
+            ]
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: {
+                formatter: '{value} °C'
+            }
+        },
+        series: [
+            {
+                name:'最高气温',
+                type:'line',
+                data:[
+                    {% for day in forecast_list %}
+                        parseInt('{{ day.high|cut:'高温' }}'),
+                    {% endfor %}
+                ],
+                markPoint: {
+                    data: [
+                        {type: 'max', name: '最大值'},
+                        {type: 'min', name: '最小值'}
+                    ]
+                },
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均值'}
+                    ]
+                }
+            },
+            {
+                name:'最低气温',
+                type:'line',
+                data:[
+                    {% for day in forecast_list %}
+                        parseInt('{{ day.low|cut:'低温' }}'),
+                    {% endfor %}
+                ],
+                markPoint: {
+                    data: [
+                        {name: '周最低', value: -2, xAxis: 1, yAxis: -1.5}
+                    ]
+                },
+                markLine: {
+                    data: [
+                        {type: 'average', name: '平均值'},
+                        [{
+                            symbol: 'none',
+                            x: '90%',
+                            yAxis: 'max'
+                        }, {
+                            symbol: 'circle',
+                            label: {
+                                normal: {
+                                    position: 'start',
+                                    formatter: '最大值'
+                                }
+                            },
+                            type: 'max',
+                            name: '最高点'
+                        }]
+                    ]
+                }
+            }
+        ]
+    };
+    myChart.setOption(option);
+
+</script>
+</body>
+</html>

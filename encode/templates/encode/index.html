@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>加密解密工具(base64编码)</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" >
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/00f1b78930.js"></script>
+</head>
+<body>
+<nav class="bg-dark "  style="padding: 10px 20% 1px 20%;">
+    <ul style="display: flex;list-style: none;">
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;"  href="/bmi/index/">bmi测试</a></li>
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;" href="/the_weather/index/">天气预报</a></li>
+        <li><a style="padding: 10px 50px;text-decoration:none;font-size:20px;" href="/encode/index/">解码(base64)</a></li>
+    </ul>
+</nav>
+<div style="display: flex">
+    <textarea name="text" id="user_text" style="height: 400px;" class="col-5 form-text form-control" placeholder="请输入待加密信息"></textarea>
+    <div class="col-2" style="padding: 10px 70px;">
+        <input type="button" style="width: 80px;height: 40px;background-color: deepskyblue;" name="bt_encode" id='encode' value="加密→"><br>
+        <input type="button" style="width: 80px;height: 40px;background-color: greenyellow;margin-top:10px;" name="bt_decode" id='decode' value="←解密">
+    </div>
+    <textarea name="base64" id="user_base64" style="height: 400px;" class="col-5 form-text form-control" placeholder="请输入加密信息"></textarea>
+</div>
+<script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    $('#encode').click(function(){
+        $.ajax({
+            type:'POST',
+            url:'http://127.0.0.1:8000/encode/encode/',
+            data:{'encode':$('#user_text').val()},
+            datatype:'json',
+            error:function(){},
+            success:function(response){
+                response = JSON.parse(response);
+                $("#user_base64").val(response.base64_encode)
+            },
+            complete:function(){}
+        });
+    });
+    $('#decode').click(function(){
+        $.ajax({
+            type:'POST',
+            url:'http://127.0.0.1:8000/encode/decode/',
+            data:{'decode':$('#user_base64').val()},
+            datatype:'json',
+            error:function(response){},
+            success:function(response){
+                response = JSON.parse(response);
+                $("#user_text").val(response.base64_decode)
+            },
+            complete:function(response){}
+        })
+    });
+</script>
+</body>
+</html>
